@@ -18,6 +18,10 @@ module ActiveRecord
           "DROP TABLE IF EXISTS #{quote_table_name(table.to_a.first.last)};\n\n" + exec_query(sql).first['Create Table'] + ";\n\n" # CHANGE 1 of 2 FROM RAILS
         }.join.gsub(/\s+AUTO_INCREMENT=\d+\s+/, ' ') # CHANGE 2 of 2 FROM RAILS
       end
+
+      def dump_schema_information #:nodoc:
+        "#{super}\n"
+      end
     end
   end
 end
