@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
   spec.summary       = 'Cleaner structure.sql for MySQL.'
   spec.description   = ''
   spec.homepage      = 'https://github.com/PagerDuty/activerecord-mysql-structure'
-  spec.license       = 'MIT'
+  spec.license       = 'Apache 2'
 
   spec.files         = `git ls-files -z`.split("\x0")
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
