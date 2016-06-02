@@ -2,10 +2,8 @@ module ActiveRecord
   module Mysql
     module Structure
       class Railtie < Rails::Railtie
-        initializer 'activerecord-mysql-structure' do
-          ActiveSupport.on_load :active_record do
-            require 'activerecord-mysql-structure/base'
-          end
+        rake_tasks do
+          load 'activerecord-mysql-structure/active_record/v4/tasks/databases.rake'
         end
       end
     end
