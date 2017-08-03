@@ -11,7 +11,7 @@ module ActiveRecord
           sql = "SHOW TABLES"
         end
 
-        structure = "/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */\n"
+        structure = "/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;\n\n"
 
         structure += select_all(sql).map { |table|
           table.delete('Table_type')
@@ -19,7 +19,7 @@ module ActiveRecord
           "DROP TABLE IF EXISTS #{quote_table_name(table.to_a.first.last)};\n\n" + exec_query(sql).first['Create Table'] + ";\n\n" # CHANGE 1 of 2 FROM RAILS
         }.join.gsub(/\s+AUTO_INCREMENT=\d+\s+/, ' ') # CHANGE 2 of 2 FROM RAILS
 
-        structure += "/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */\n"
+        structure += "/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;\n\n"
 
         structure
       end
