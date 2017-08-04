@@ -26,6 +26,14 @@ describe ActiveRecord::Mysql::Structure do
         }]
       end
 
+      it 'starts with FOREIGN_KEY_CHECKS disable' do
+        expect(adapter.structure_dump.lines.to_a[0]).to eq "/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;\n"
+      end
+
+      it 'includes FOREIGN_KEY_CHECKS re-enable at the end' do
+        expect(adapter.structure_dump.lines.to_a[-2]).to eq "/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;\n"
+      end
+
       it 'adds DROP TABLE IF EXISTS statements' do
         expect(adapter.structure_dump).to include 'DROP TABLE IF EXISTS `foobar`'
       end
