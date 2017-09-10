@@ -1,5 +1,5 @@
 require 'active_support'
-
+require 'active_record'
 begin
   require 'rails'
 rescue LoadError
@@ -10,6 +10,6 @@ require 'activerecord-mysql-structure/active_record/structure_sql_sanitizer'
 
 if defined? Rails
   require 'activerecord-mysql-structure/railtie'
-else
-  # nothing to do! yay!
+elsif ActiveRecord::VERSION::MAJOR == 3
+  require 'activerecord-mysql-structure/active_record/v3/connection_adapters/abstract_mysql_adapter'
 end

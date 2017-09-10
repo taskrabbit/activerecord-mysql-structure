@@ -7,3 +7,7 @@ module ::RSpec
     @spec_root ||= File.expand_path('..', __FILE__)
   end
 end
+
+RSpec.configure do |c|
+  c.filter_run_excluding :active_record_3 => (ActiveRecord::VERSION::MAJOR != 3)
+end
