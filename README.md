@@ -2,12 +2,9 @@
 
 This gem improves ActiveRecord's dumping of MySQL schema to a `structure.sql` file.
 - `AUTO_INCREMENT` values will not be written, preventing noisy diffs
-- `DROP TABLE IF EXISTS` statements will be prepended to `CREATE_TABLE` statements, mimicking the `force: true` option normally captured in `schema.rb`
-- adds newline to EOF
-
-It is intended for use with ActiveRecord 3 only.
-The `AUTO_INCREMENT` functionality is unlikely to ever be added to Rails master as it uses the `mysqldump` command directly.
-As of this writing, `mysqldump` has no support for ignoring `AUTO_INCREMENT` output.
+- comments starting with `--` will not be written
+- MySQL `SET` directives starting with `/*` will not be written
+- removes extra newline at the bottom of the file
 
 ## Installation
 
@@ -24,3 +21,11 @@ And then execute:
 Or install it yourself as:
 
     $ gem install activerecord-mysql-structure
+
+For rails projects, there is no additional step; `activerecord-mysql-structure` will hook into your application automagically.
+For non-rails projects, you can use the `structure.sql` sanitizing utility manually as follows:
+
+```ruby
+sanitized_content = ActiveRecordMySqlStructure::StructureSqlSanitizer.sanitize(path_to_default_structure_sql)
+File.write(path_to_sanitized_structure_sql, sanitized_content)
+```
