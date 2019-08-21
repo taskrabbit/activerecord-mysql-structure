@@ -3,7 +3,7 @@
 module ActiveRecordMySqlStructure
   # This module is used by the enhanced rake task to sanitize the structure.sql
   class StructureSqlSanitizer
-    COLUMN_REGEX = /^\s*`\w+`.*,+$/
+    COLUMN_REGEX = /\A\s*`\w+`/
 
     # When set to true, the sanitizer will sort the columns of each table. This
     # will help keep a consistent column order in the outputted structure file.
