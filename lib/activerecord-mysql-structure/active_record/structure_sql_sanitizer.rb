@@ -18,18 +18,19 @@ module ActiveRecordMySqlStructure
     end
 
     def self.sanitize(filename)
-      new(filename).sanitize!
+      new(filename, sorted_columns: sorted_columns?).sanitize!
     end
 
-    attr_reader :filename
+    attr_reader :filename, :sorted_columns
 
-    def initialize(filename)
+    def initialize(filename, sorted_columns:)
       @filename = filename
+      @sorted_columns = sorted_columns
     end
 
     def sanitize!
       lines = load_file
-      lines = sort_columns(lines) if self.class.sorted_columns?
+      lines = sort_columns(lines) if sorted_columns
       lines = lines.join
 
       # remove empty lines from the top using lstrip.
