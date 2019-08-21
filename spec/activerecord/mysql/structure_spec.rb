@@ -14,7 +14,7 @@ describe ActiveRecord::Mysql::Structure do
     let(:expected_filename) { File.join(RSpec::root, 'data', 'structure.expected.sql') }
     let(:expected_sanitized_content) { File.read(expected_filename) }
 
-    describe '.sanitize' do
+    describe '#sanitize' do
       it 'removes unwanted lines and substrings from structure.sql' do
         actual_sanitized_content = ActiveRecordMySqlStructure::StructureSqlSanitizer.sanitize(filename)
         expect(actual_sanitized_content).to eq(expected_sanitized_content)
