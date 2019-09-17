@@ -26,8 +26,8 @@ CREATE TABLE `classifieds` (
   `item_img_file_size` int(11) DEFAULT NULL,
   `item_img_updated_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `index_classifieds_on_employee_id` (`employee_id`),
-  KEY `index_classifieds_on_classified_type_id` (`classified_type_id`)
+  KEY `index_classifieds_on_classified_type_id` (`classified_type_id`),
+  KEY `index_classifieds_on_employee_id` (`employee_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 

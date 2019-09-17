@@ -1,3 +1,6 @@
+-- MySQL Dump modified by gem 'activerecord-mysql-structure'
+
+
 DROP TABLE IF EXISTS `classified_types`;
 CREATE TABLE `classified_types` (
   `created_at` datetime DEFAULT NULL,
