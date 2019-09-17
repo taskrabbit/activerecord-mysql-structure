@@ -22,13 +22,51 @@ describe ActiveRecord::Mysql::Structure do
 
       context 'with sorted columns enabled' do
         subject do
-          ActiveRecordMySqlStructure::StructureSqlSanitizer.new(filename, sorted_columns: true)
+          ActiveRecordMySqlStructure::StructureSqlSanitizer.new(
+            filename,
+            sorted_columns: true,
+            sorted_indices: false
+          )
         end
 
         let(:expected_filename) { File.join(RSpec::root, 'data', 'structure.sorted_columns.sql') }
 
         it 'should remove unwanted lines and substrings from structure.sql' do
           expect(subject.sanitize!).to eq(expected_sanitized_content)
+        end
+      end
+
+      context 'with sorted indices enabled' do
+        subject do
+          ActiveRecordMySqlStructure::StructureSqlSanitizer.new(
+            filename,
+            sorted_columns: false,
+            sorted_indices: true
+          )
+        end
+
+        let(:expected_filename) { File.join(RSpec.root, 'data', 'structure.sorted_indices.sql') }
+
+        it 'sorts and sanitizes the indices' do
+          expect(subject.sanitize!).to eq(expected_sanitized_content)
+        end
+
+        context 'with complex indices' do
+          let(:filename) { File.join(RSpec.root, %w[data structure.complex-indices-example.sql]) }
+          let(:expected_filename) { File.join(RSpec.root, %w[data structure.complex-indices-expected.sql]) }
+
+          it 'sorts and sanitizes the indices' do
+            expect(subject.sanitize!).to eq(expected_sanitized_content)
+          end
+        end
+
+        context 'with an unsupported table engine' do
+          let(:filename) { File.join(RSpec.root, %w[data structure.unsupported-engine-example.sql]) }
+          it "raises an explicit error instead of silently stripping index types" do
+            expect do
+              subject.sanitize!
+            end.to raise_error(RuntimeError)
+          end
         end
       end
     end

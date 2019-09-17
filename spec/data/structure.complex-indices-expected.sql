@@ -1,16 +1,6 @@
 -- MySQL Dump modified by gem 'activerecord-mysql-structure'
 
 
-DROP TABLE IF EXISTS `classified_types`;
-CREATE TABLE `classified_types` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `created_at` datetime DEFAULT NULL,
-  `updated_at` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
-
 DROP TABLE IF EXISTS `classifieds`;
 CREATE TABLE `classifieds` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -26,8 +16,9 @@ CREATE TABLE `classifieds` (
   `item_img_file_size` int(11) DEFAULT NULL,
   `item_img_updated_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
+  KEY `index_classifieds_on_classified_type_id` (`classified_type_id`),
   KEY `index_classifieds_on_employee_id` (`employee_id`),
-  KEY `index_classifieds_on_classified_type_id` (`classified_type_id`)
+  UNIQUE KEY `arbitrary_index_name` (`employee_id`, `classified_type_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 
@@ -35,19 +26,6 @@ DROP TABLE IF EXISTS `schema_migrations`;
 CREATE TABLE `schema_migrations` (
   `version` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   UNIQUE KEY `unique_schema_migrations` (`version`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
-
-DROP TABLE IF EXISTS `teams`;
-CREATE TABLE `teams` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `created_at` datetime NOT NULL,
-  `updated_at` datetime NOT NULL,
-  `email` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `description` text COLLATE utf8_unicode_ci,
-  PRIMARY KEY (`id`),
-  KEY `index_teams_on_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 
