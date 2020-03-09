@@ -12,6 +12,13 @@ module ActiveRecordMySqlStructure
     # crash if any other engine is in use
     UNSUPPORTED_ENGINE_REGEX = /ENGINE=(?!InnoDB|MyISAM)/
 
+    # Schema migration version insertions happen after this line
+    SCHEMA_INSERT_REGEX = /^INSERT INTO `schema_migrations` \(version\) VALUES$/
+
+    # Schema migration version insertions match this pattern
+    MIGRATION_VERSION_SEPARATOR_REGEX = /[,;]$/
+    MIGRATION_VERSION_VALUE_REGEX = /\('\d+'\)#{MIGRATION_VERSION_SEPARATOR_REGEX}/
+
     # Friendly comment warning maintainers that this gem is meddling with the
     # contents of their structure.sql
     DECLARATION_OF_ORIGIN = "-- MySQL Dump modified by gem 'activerecord-mysql-structure'"
@@ -50,16 +57,39 @@ module ActiveRecordMySqlStructure
       !!@sorted_indices
     end
 
-    def self.sanitize(filename)
-      new(filename, sorted_columns: sorted_columns?, sorted_indices: sorted_indices?).sanitize!
+    # When set to true, the sanitizer will sort the schema versions listed for
+    # import into the schema migrations table. This will help keep a consistent
+    # order to these values even if run out of order on a given database, reducing
+    # thrasing. Only Rails 5 style mass-insert statements are considered at this time.
+    #
+    # @param val [Boolean] the new setting for schema version sorting
+    def self.sorted_schema_versions=(val)
+      @sorted_schema_versions = val
     end
 
-    attr_reader :filename, :sorted_columns, :sorted_indices
+    # Returns whether the structure should have sanitized, chronologically sorted
+    # schema migration version numbers
+    #
+    # @return [Boolean] the current setting for index sorting
+    def self.sorted_schema_versions?
+      !!@sorted_schema_versions
+    end
 
-    def initialize(filename, sorted_columns:, sorted_indices:)
+    def self.sanitize(filename)
+      new(filename,
+          sorted_columns: sorted_columns?,
+          sorted_indices: sorted_indices?,
+          sorted_schema_versions: sorted_schema_versions?,
+      ).sanitize!
+    end
+
+    attr_reader :filename, :sorted_columns, :sorted_indices, :sorted_schema_versions
+
+    def initialize(filename, sorted_columns:, sorted_indices:, sorted_schema_versions:)
       @filename = filename
       @sorted_columns = sorted_columns
       @sorted_indices = sorted_indices
+      @sorted_schema_versions = sorted_schema_versions
     end
 
     def sanitize!
@@ -67,6 +97,7 @@ module ActiveRecordMySqlStructure
       lines.unshift(DECLARATION_OF_ORIGIN)
       lines = sort_columns(lines) if sorted_columns
       lines = sort_indices(lines) if sorted_indices
+      lines = sort_versions(lines) if sorted_schema_versions
       lines = lines.join
 
       # remove empty lines from the top using lstrip.
@@ -152,6 +183,44 @@ module ActiveRecordMySqlStructure
       end
 
       sorted_lines
+    end
+
+    def sort_versions(lines)
+      versions = []
+      sorted_lines = []
+      in_versions = false
+      lines.each do |line|
+        if in_versions
+          if MIGRATION_VERSION_VALUE_REGEX.match?(line)
+            # Collect the version values until we run out (generally due to the newlines at the end)
+            versions << line
+          else
+            # Once we have stopped finding version values, sort them and add them all in order,
+            # correcting the separator punctuation
+            add_versions_to_output(sorted_lines, versions)
+            sorted_lines << line
+            in_versions = false
+            versions = []
+          end
+        else
+          # Most of the file until the "insert into schema_migrations" line is unchanged
+          sorted_lines << line
+          in_versions = !!SCHEMA_INSERT_REGEX.match?(line)
+        end
+      end
+
+      add_versions_to_output(sorted_lines, versions) if in_versions
+      sorted_lines
+    end
+
+    def add_versions_to_output(output_lines, version_lines)
+      version_lines.sort.each_with_index do |version, idx|
+        if (version_lines.size - 1) == idx
+          output_lines << version.gsub(MIGRATION_VERSION_SEPARATOR_REGEX, ';')
+        else
+          output_lines << version.gsub(MIGRATION_VERSION_SEPARATOR_REGEX, ',')
+        end
+      end
     end
   end
 end
