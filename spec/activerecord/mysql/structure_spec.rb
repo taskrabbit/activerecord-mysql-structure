@@ -25,7 +25,8 @@ describe ActiveRecord::Mysql::Structure do
           ActiveRecordMySqlStructure::StructureSqlSanitizer.new(
             filename,
             sorted_columns: true,
-            sorted_indices: false
+            sorted_indices: false,
+            sorted_schema_versions: false,
           )
         end
 
@@ -41,7 +42,8 @@ describe ActiveRecord::Mysql::Structure do
           ActiveRecordMySqlStructure::StructureSqlSanitizer.new(
             filename,
             sorted_columns: false,
-            sorted_indices: true
+            sorted_indices: true,
+            sorted_schema_versions: false,
           )
         end
 
@@ -67,6 +69,23 @@ describe ActiveRecord::Mysql::Structure do
               subject.sanitize!
             end.to raise_error(RuntimeError)
           end
+        end
+      end
+
+      context 'with sorted schema versions enabled' do
+        subject do
+          ActiveRecordMySqlStructure::StructureSqlSanitizer.new(
+            filename,
+            sorted_columns: false,
+            sorted_indices: false,
+            sorted_schema_versions: true,
+          )
+        end
+        let(:filename) { File.join(RSpec::root, 'data', 'structure.modern-versions-dump.sql') }
+        let(:expected_filename) { File.join(RSpec.root, %w[data structure.modern-versions-dump-expected.sql]) }
+
+        it 'sorts and sanitizes the versions' do
+          expect(subject.sanitize!).to eq(expected_sanitized_content)
         end
       end
     end
